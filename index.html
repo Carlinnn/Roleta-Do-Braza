@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roleta BRAZA - Experiência BRAZA FORTE</title>
+    <meta
+      name="description"
+      content="Divirta-se com a Roleta BRAZA na BRAZA FORTE. Quem paga a conta ou qual o mico da vez?"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="fire-container"></div>
+    <div id="app">
+      <!-- Main Menu -->
+      <main id="menu" class="view active">
+        <div class="logo-container">
+          <h1 class="logo">BRAZA <span class="highlight">FORTE</span></h1>
+          <p class="subtitle">A ROLETA DO DESTINO</p>
+        </div>
+
+        <div class="menu-options">
+          <button
+            id="btn-conta"
+            class="menu-btn"
+            onclick="openRoulette('conta')"
+          >
+            <span class="btn-icon">💰</span>
+            <span class="btn-text">Quem paga a conta?</span>
+          </button>
+          <button
+            id="btn-micos"
+            class="menu-btn"
+            onclick="openRoulette('micos')"
+          >
+            <span class="btn-icon">😜</span>
+            <span class="btn-text">Roleta dos Micos</span>
+          </button>
+          <button
+            id="btn-custom"
+            class="menu-btn"
+            onclick="showCustomView()"
+          >
+            <span class="btn-icon">⚙️</span>
+            <span class="btn-text">Modo Personalizado</span>
+          </button>
+        </div>
+
+        <footer class="main-footer">
+          <p>Abra sua brasa, viva o momento.</p>
+        </footer>
+      </main>
+
+      <!-- Custom Input View -->
+      <section id="custom-view" class="view">
+        <nav class="top-nav">
+          <button class="back-btn" onclick="showMenu()">← Voltar</button>
+        </nav>
+        
+        <div class="custom-container">
+            <h2>CRIAR ROLETA</h2>
+            <p>Digite as opções separadas por vírgula ou uma por linha:</p>
+            <textarea id="custom-input" placeholder="Ex: Lucas, Carol, João, Maria..."></textarea>
+            <div class="controls">
+                <button id="create-btn" onclick="createCustomRoulette()">CRIAR BRAZA!</button>
+            </div>
+        </div>
+      </section>
+
+      <!-- Roulette Screen -->
+      <section id="roulette-screen" class="view">
+        <nav class="top-nav">
+          <button class="back-btn" onclick="showMenu()">← Voltar</button>
+        </nav>
+
+        <div class="roulette-container">
+          <h2 id="roulette-title">Título da Roleta</h2>
+
+          <div class="wheel-wrapper">
+            <div id="wheel-pointer"></div>
+            <canvas id="wheel-canvas" width="500" height="500"></canvas>
+          </div>
+
+          <div class="controls">
+            <button id="spin-btn" onclick="spin()">GIRAR BRAZA!</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Modal -->
+      <div id="result-modal" class="modal">
+        <div class="modal-content">
+          <h3>O DESTINO DECIDIU:</h3>
+          <div id="result-text">Resultado</div>
+          <p id="result-incentive"></p>
+          <div class="modal-actions">
+            <button class="action-btn primary" onclick="closeModal()">
+              Girar Novamente
+            </button>
+            <button id="btn-share" class="action-btn share" onclick="shareResult()">
+              Zuar no WhatsApp 📱
+            </button>
+            <button class="action-btn secondary" onclick="showMenu()">
+              Menu Inicial
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/engine.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>
