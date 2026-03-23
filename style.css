@@ -42,6 +42,36 @@ body {
   background-position: center;
 }
 
+.social-link {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  padding: 12px;
+  border-radius: 50%;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.social-link i, .social-link svg {
+    width: 24px;
+    height: 24px;
+}
+
+.social-link:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: rgba(255, 77, 0, 0.2);
+  border-color: var(--primary);
+}
+
 /* Base View Logic */
 .view {
   display: none;
@@ -153,8 +183,18 @@ body {
 }
 
 .btn-icon {
-  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
 }
+
+.btn-icon i, .btn-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 2.5;
+}
+
 .btn-text {
   font-size: 1.2rem;
   font-weight: 700;
@@ -181,6 +221,14 @@ body {
   font-size: 1rem;
   cursor: pointer;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn i, .back-btn svg {
+    width: 18px;
+    height: 18px;
 }
 
 .roulette-container {
