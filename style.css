@@ -40,6 +40,12 @@ body {
     url("public/braza_background.png");
   background-size: cover;
   background-position: center;
+  animation: bgZoom 20s infinite alternate ease-in-out;
+}
+
+@keyframes bgZoom {
+    from { background-size: 105% 105%; }
+    to { background-size: 115% 115%; }
 }
 
 .social-link {
@@ -57,8 +63,14 @@ body {
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(10px);
-  transition: all 0.3s;
   box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  animation: floatSocial 3s infinite ease-in-out;
+  transition: all 0.3s;
+}
+
+@keyframes floatSocial {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }
 
 .social-link i, .social-link svg {
@@ -145,13 +157,30 @@ body {
   gap: 20px;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255,255,255,0.1);
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.view.active .menu-btn {
+    animation: slideUp 0.6s forwards;
+}
+
+.view.active .menu-btn:nth-child(1) { animation-delay: 0.1s; }
+.view.active .menu-btn:nth-child(2) { animation-delay: 0.2s; }
+.view.active .menu-btn:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes slideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .menu-btn:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: rgba(255, 77, 0, 0.1);
+  transform: translateY(-8px) scale(1.05);
+  background: rgba(255, 77, 0, 0.15);
   border-color: var(--primary);
-  box-shadow: 0 20px 40px rgba(255, 77, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(255, 77, 0, 0.3);
 }
 
 .menu-btn:active {
@@ -238,6 +267,18 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 30px;
+  animation: wheelPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes wheelPop {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 #roulette-title {
@@ -377,6 +418,26 @@ body {
 
 .modal.active {
   display: flex;
+}
+
+.modal.active::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    background: var(--primary);
+    filter: blur(150px);
+    opacity: 0.4;
+    z-index: -1;
+    animation: haloPulse 2s infinite alternate ease-in-out;
+}
+
+@keyframes haloPulse {
+    from { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+    to { transform: translate(-50%, -50%) scale(1.5); opacity: 0.6; }
 }
 
 .modal-content {
