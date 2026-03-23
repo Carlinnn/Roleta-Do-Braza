@@ -400,6 +400,17 @@ body {
   color: white;
 }
 
+.action-btn.remove {
+  background: #444;
+  color: #ccc;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.action-btn.remove:hover {
+  background: #622;
+  color: white;
+}
+
 .action-btn.secondary {
   background: transparent;
   color: white;
