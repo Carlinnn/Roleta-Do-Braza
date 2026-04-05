@@ -64,17 +64,12 @@ function shareResult() {
 
 function showResult() {
   const items = optionsList[currentMode].items;
-  const arcSize = (2 * Math.PI) / items.length;
-  let normalizedRotation = currentRotation % (2 * Math.PI);
-  let winningIndex = Math.floor(items.length - (normalizedRotation + Math.PI / 2) / arcSize) % items.length;
-  if (winningIndex < 0) winningIndex += items.length;
+  const winningIndex = getWinningIndex(currentRotation, items.length);
   latestWinningIndex = winningIndex;
-  setWinner(winningIndex);
-  drawWheel(currentMode);
   latestResult = items[winningIndex];
-  const incentiveText = optionsList[currentMode].incentive.replace("{result}", latestResult);
+  drawWheel(currentMode);
   document.getElementById("result-text").innerText = latestResult;
-  document.getElementById("result-incentive").innerText = incentiveText;
+  document.getElementById("result-incentive").innerText = optionsList[currentMode].incentive.replace("{result}", latestResult);
   createBurst();
   setTimeout(() => {
     document.getElementById("result-modal").classList.add("active");

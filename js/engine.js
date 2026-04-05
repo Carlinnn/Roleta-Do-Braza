@@ -1,21 +1,90 @@
 const canvas = document.getElementById("wheel-canvas");
 const ctx = canvas.getContext("2d");
-const spinSound = new Audio("public/roleta.mp3");
+
+// Audio with AudioContext fallback for maximum browser compatibility
+let audioCtx = null;
+let spinBufferSource = null;
+let spinGain = null;
+let audioReady = false;
+let audioFailed = false;
+
+const spinSound = new Audio();
+spinSound.src = "public/roleta.mp3";
+spinSound.preload = "auto";
+spinSound.load();
+
+function playSpinSound() {
+  if (!audioFailed) {
+    try {
+      spinSound.currentTime = 0;
+      const promise = spinSound.play();
+      if (promise) {
+        promise.then(() => {
+          audioReady = true;
+        }).catch(err => {
+          console.warn("Audio element play failed:", err.message, "— trying AudioContext fallback");
+          playWithAudioContext();
+        });
+      } else {
+        audioReady = true;
+      }
+    } catch (e) {
+      if (!audioReady) playWithAudioContext();
+    }
+  }
+}
+
+function playWithAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    fetch("public/roleta.mp3")
+      .then(res => res.arrayBuffer())
+      .then(buffer => audioCtx.decodeAudioData(buffer))
+      .then(decoded => {
+        audioReady = true;
+        spinBufferSource = decoded;
+      })
+      .catch(err => {
+        audioFailed = true;
+        console.error("Audio failed to load completely:", err);
+      });
+    return;
+  }
+  if (spinBufferSource) {
+    const source = audioCtx.createBufferSource();
+    source.buffer = spinBufferSource;
+    if (!spinGain) {
+      spinGain = audioCtx.createGain();
+      spinGain.gain.value = 1;
+      source.connect(spinGain).connect(audioCtx.destination);
+    } else {
+      source.connect(spinGain);
+    }
+    spinGain.gain.value = 1;
+    source.start(0);
+    spinBufferSource = spinBufferSource;
+  }
+}
 
 let currentRotation = 0;
 let isSpinning = false;
 let lastTickIndex = -1;
-let winnerIndex = -1;
+let determinedWinner = -1;
 
 function resetSpinState() {
   currentRotation = 0;
   isSpinning = false;
   lastTickIndex = -1;
-  winnerIndex = -1;
+  determinedWinner = -1;
 }
 
-function setWinner(index) {
-  winnerIndex = index;
+function getWinningIndex(rotation, itemCount) {
+  const arcSize = (2 * Math.PI) / itemCount;
+  let normalized = (rotation + Math.PI / 2) % (2 * Math.PI);
+  if (normalized < 0) normalized += 2 * Math.PI;
+  let idx = (itemCount - Math.floor(normalized / arcSize)) % itemCount;
+  if (idx < 0) idx += itemCount;
+  return idx;
 }
 
 function drawWheel(mode) {
@@ -53,7 +122,7 @@ function drawWheel(mode) {
     ctx.beginPath();
     const grad = ctx.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius);
     
-    if (i === winnerIndex) {
+    if (i === determinedWinner) {
       grad.addColorStop(0, "#ffffff");
       grad.addColorStop(1, "#ffcc00");
     } else if (i % 2 === 0) {
@@ -70,7 +139,7 @@ function drawWheel(mode) {
     ctx.lineTo(centerX, centerY);
     ctx.fill();
     
-    if (i === winnerIndex) {
+    if (i === determinedWinner) {
         ctx.strokeStyle = "#fff";
         ctx.lineWidth = 4;
         ctx.stroke();
@@ -84,7 +153,7 @@ function drawWheel(mode) {
     ctx.translate(centerX, centerY);
     ctx.rotate(angle + arcSize / 2);
     ctx.textAlign = "right";
-    ctx.fillStyle = i === winnerIndex ? "#000" : "white";
+    ctx.fillStyle = i === determinedWinner ? "#000" : "white";
     ctx.font = "bold 16px Outfit";
     ctx.shadowColor = "rgba(0,0,0,0.8)";
     ctx.shadowBlur = 4;
@@ -117,16 +186,13 @@ function drawWheel(mode) {
 function runSpinAnimation(mode, showResultCallback) {
   if (isSpinning) return;
   isSpinning = true;
-  winnerIndex = -1;
+  determinedWinner = -1;
   document.getElementById("spin-btn").disabled = true;
 
-  spinSound.currentTime = 0;
-  spinSound.volume = 1;
-  spinSound.play().catch(() => {});
+  playSpinSound();
 
   const items = optionsList[mode].items;
   const numOptions = items.length;
-  const arcSize = (2 * Math.PI) / numOptions;
   const spinDuration = 4000 + Math.random() * 2000;
   const startRotation = currentRotation;
   const extraSpins = 7 + Math.floor(Math.random() * 5);
@@ -144,11 +210,15 @@ function runSpinAnimation(mode, showResultCallback) {
     drawWheel(mode);
 
     if (progress > 0.8) {
-      spinSound.volume = Math.max(0, (1 - progress) * 5);
+      if (audioCtx && spinGain) {
+        spinGain.gain.value = Math.max(0, (1 - progress) * 5);
+      } else {
+        spinSound.volume = Math.max(0, (1 - progress) * 5);
+      }
     }
 
-    const normalizedRotation = (currentRotation + Math.PI / 2) % (2 * Math.PI);
-    const currentIndex = Math.floor(numOptions - (normalizedRotation / arcSize)) % numOptions;
+    const arcSize = (2 * Math.PI) / numOptions;
+    const currentIndex = getWinningIndex(currentRotation, numOptions);
 
     if (currentIndex !== lastTickIndex && lastTickIndex !== -1) {
       pointer.style.transform = "translateX(-50%) scale(1.2) translateY(5px)";
@@ -160,10 +230,15 @@ function runSpinAnimation(mode, showResultCallback) {
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
+      determinedWinner = getWinningIndex(currentRotation, numOptions);
       isSpinning = false;
       document.getElementById("spin-btn").disabled = false;
-      spinSound.pause();
-      spinSound.volume = 1;
+      if (audioCtx && spinGain) {
+        spinGain.gain.value = 1;
+      } else {
+        spinSound.pause();
+        spinSound.volume = 1;
+      }
       setTimeout(showResultCallback, 200);
     }
   }
